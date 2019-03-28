@@ -2,8 +2,8 @@ import React, { Component } from "react";
 import "./App.css";
 import Highchart from "./components/Highchart";
 import Weather from "./components/Weather";
-// import Pollution from "./components/Pollution";
 const APIkey = "1697193f8750f5ec8d1046c2118876cf";
+
 class App extends Component {
   state = {
     value: "Warsaw",
@@ -21,32 +21,28 @@ class App extends Component {
       icon: "",
       country: ""
     },
-    dataPollution: {
-      coordx: "",
-      coordy: "",
-      value: ""
-    },
+
     dataHighchartIsLoad: false,
-    dataWeatherIsLoad: false,
-    dataPollutionIsLoad: false
+    dataWeatherIsLoad: false
   };
 
   handleCahngeInput = e => this.setState({ value: e.target.value });
   componentDidMount() {
+    const date = new Date().toISOString();
+    this.setState({ date: date.slice(0, 23) + "000" + date.slice(23, 24) });
     const highchartAPI = `https://api.openweathermap.org/data/2.5/forecast?q=${
       this.state.value
     }&appid=${APIkey}&units=metric`;
     const weatherAPI = `https://api.openweathermap.org/data/2.5/weather?q=${
       this.state.value
     }&appid=${APIkey}&units=metric`;
+
     //pogoda--------------------------------------
     fetch(weatherAPI)
       .then(resp => {
         if (resp.ok) {
           return resp.json();
-        } /*else {
-          this.setState({ dataWeather: [], dataWeatherIsLoad: false });
-        }*/
+        }
         throw Error("Brak miasta w bazie");
       })
       .then(data =>
@@ -61,10 +57,6 @@ class App extends Component {
             icon: data.weather[0].id,
             country: data.sys.country
           },
-          dataPollution: {
-            coordx: data.coord.lat,
-            coordy: data.coord.lon
-          },
           dataWeatherIsLoad: true
         })
       )
@@ -74,8 +66,6 @@ class App extends Component {
       .then(resp => {
         if (resp.ok) {
           return resp.json();
-        } else {
-          this.setState({ dataHighchart: [], dataHighchartIsLoad: false });
         }
         throw Error("Brak miasta w bazie");
       })
@@ -101,7 +91,6 @@ class App extends Component {
       const weatherAPI = `https://api.openweathermap.org/data/2.5/weather?q=${
         this.state.value
       }&appid=${APIkey}&units=metric`;
-
       fetch(weatherAPI)
         .then(resp => {
           if (resp.ok) {
@@ -122,10 +111,6 @@ class App extends Component {
               sunset: new Date(data.sys.sunset * 1000).toLocaleTimeString(),
               icon: data.weather[0].id,
               country: data.sys.country
-            },
-            dataPollution: {
-              coordx: data.coord.lat,
-              coordy: data.coord.lon
             },
             dataWeatherIsLoad: true
           })
