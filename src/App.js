@@ -6,11 +6,29 @@ import Weather from "./components/Weather";
 const APIkey = "1697193f8750f5ec8d1046c2118876cf";
 class App extends Component {
   state = {
-    dataHighchart: [],
-    dataWeather: [],
+    value: "Warsaw",
+    dataHighchart: {
+      hoursHighchart: [],
+      tempHighchart: []
+    },
+    dataWeather: {
+      temp: "",
+      wind: "",
+      humidity: "",
+      pressure: "",
+      sunrise: "",
+      sunset: "",
+      icon: "",
+      country: ""
+    },
+    dataPollution: {
+      coordx: "",
+      coordy: "",
+      value: ""
+    },
     dataHighchartIsLoad: false,
     dataWeatherIsLoad: false,
-    value: "Warsaw"
+    dataPollutionIsLoad: false
   };
 
   handleCahngeInput = e => this.setState({ value: e.target.value });
@@ -21,23 +39,37 @@ class App extends Component {
     const weatherAPI = `https://api.openweathermap.org/data/2.5/weather?q=${
       this.state.value
     }&appid=${APIkey}&units=metric`;
-
+    //pogoda--------------------------------------
     fetch(weatherAPI)
       .then(resp => {
         if (resp.ok) {
           return resp.json();
-        } else {
+        } /*else {
           this.setState({ dataWeather: [], dataWeatherIsLoad: false });
-        }
+        }*/
         throw Error("Brak miasta w bazie");
       })
       .then(data =>
         this.setState({
-          dataWeather: data,
+          dataWeather: {
+            temp: data.main.temp,
+            wind: data.wind.speed,
+            humidity: data.main.humidity,
+            pressure: data.main.pressure,
+            sunrise: new Date(data.sys.sunrise * 1000).toLocaleTimeString(),
+            sunset: new Date(data.sys.sunset * 1000).toLocaleTimeString(),
+            icon: data.weather[0].id,
+            country: data.sys.country
+          },
+          dataPollution: {
+            coordx: data.coord.lat,
+            coordy: data.coord.lon
+          },
           dataWeatherIsLoad: true
         })
       )
       .catch(err => console.log(err));
+    //wykres-----------------------
     fetch(highchartAPI)
       .then(resp => {
         if (resp.ok) {
@@ -49,7 +81,12 @@ class App extends Component {
       })
       .then(data =>
         this.setState({
-          dataHighchart: data,
+          dataHighchart: {
+            hoursHighchart: [
+              data.list.map((date, index) => date.dt_txt.slice(11, 16))
+            ],
+            tempHighchart: [data.list.map(item => item.main.temp)]
+          },
           dataHighchartIsLoad: true
         })
       )
@@ -76,7 +113,20 @@ class App extends Component {
         })
         .then(data =>
           this.setState({
-            dataWeather: data,
+            dataWeather: {
+              temp: data.main.temp,
+              wind: data.wind.speed,
+              humidity: data.main.humidity,
+              pressure: data.main.pressure,
+              sunrise: new Date(data.sys.sunrise * 1000).toLocaleTimeString(),
+              sunset: new Date(data.sys.sunset * 1000).toLocaleTimeString(),
+              icon: data.weather[0].id,
+              country: data.sys.country
+            },
+            dataPollution: {
+              coordx: data.coord.lat,
+              coordy: data.coord.lon
+            },
             dataWeatherIsLoad: true
           })
         )
@@ -92,7 +142,12 @@ class App extends Component {
         })
         .then(data =>
           this.setState({
-            dataHighchart: data,
+            dataHighchart: {
+              hoursHighchart: [
+                data.list.map((date, index) => date.dt_txt.slice(11, 16))
+              ],
+              tempHighchart: [data.list.map(item => item.main.temp)]
+            },
             dataHighchartIsLoad: true
           })
         )
