@@ -38,7 +38,8 @@ const Highchart = props => {
   });
   const HighchartOptions = {
     title: {
-      text: `Five-day weather forecast for ${props.city}`
+      text: "highchart generate by www.highcharts.com"
+      //text: `Five-day weather forecast for ${props.city}`
     },
 
     subtitle: {
