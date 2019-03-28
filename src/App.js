@@ -4,6 +4,10 @@ import Highchart from "./components/Highchart";
 import Weather from "./components/Weather";
 const APIkey = "1697193f8750f5ec8d1046c2118876cf";
 
+//zwiększyć czytelność kodu poprzez stworzenie większej ilośc komponentów
+//dodanie do wykresu wskaźnika zachmurzenia, wiatru i ciśnienia
+//ogarnięcie ikon bez dodawania plików
+
 class App extends Component {
   state = {
     value: "Warsaw",
