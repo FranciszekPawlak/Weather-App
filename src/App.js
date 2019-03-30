@@ -1,16 +1,13 @@
 import React, { Component } from "react";
-import "./App.css";
+import "./styles/App.css";
 import Highchart from "./components/Highchart";
 import Weather from "./components/Weather";
 const APIkey = "1697193f8750f5ec8d1046c2118876cf";
 
-//zwiększyć czytelność kodu poprzez stworzenie większej ilośc komponentów
-//dodanie do wykresu wskaźnika zachmurzenia, wiatru i ciśnienia
-//ogarnięcie ikon bez dodawania plików
-
 class App extends Component {
   state = {
-    value: "Warsaw",
+    value: "",
+    city: "",
     dataHighchart: {
       hoursHighchart: [],
       tempHighchart: []
@@ -32,14 +29,8 @@ class App extends Component {
 
   handleCahngeInput = e => this.setState({ value: e.target.value });
   componentDidMount() {
-    const date = new Date().toISOString();
-    this.setState({ date: date.slice(0, 23) + "000" + date.slice(23, 24) });
-    const highchartAPI = `https://api.openweathermap.org/data/2.5/forecast?q=${
-      this.state.value
-    }&appid=${APIkey}&units=metric`;
-    const weatherAPI = `https://api.openweathermap.org/data/2.5/weather?q=${
-      this.state.value
-    }&appid=${APIkey}&units=metric`;
+    const highchartAPI = `https://api.openweathermap.org/data/2.5/forecast?q=warsaw&appid=${APIkey}&units=metric`;
+    const weatherAPI = `https://api.openweathermap.org/data/2.5/weather?q=warsaw&appid=${APIkey}&units=metric`;
 
     //pogoda--------------------------------------
     fetch(weatherAPI)
@@ -49,7 +40,7 @@ class App extends Component {
         }
         throw Error("Brak miasta w bazie");
       })
-      .then(data =>
+      .then(data => {
         this.setState({
           dataWeather: {
             temp: data.main.temp,
@@ -61,9 +52,10 @@ class App extends Component {
             icon: data.weather[0].id,
             country: data.sys.country
           },
+          city: data.name,
           dataWeatherIsLoad: true
-        })
-      )
+        });
+      })
       .catch(err => console.log(err));
     //wykres-----------------------
     fetch(highchartAPI)
@@ -71,7 +63,7 @@ class App extends Component {
         if (resp.ok) {
           return resp.json();
         }
-        throw Error("Brak miasta w bazie");
+        throw Error("cannot read data");
       })
       .then(data =>
         this.setState({
@@ -86,9 +78,26 @@ class App extends Component {
       )
       .catch(err => console.log(err));
   }
+
   componentDidUpdate(prevProps, prevState) {
     if (this.state.value.length === 0) return;
-    if (prevState.value !== this.state.value && this.state.value.length > 2) {
+
+    if (
+      prevState.value !== this.state.value /* && this.state.value.length > 2*/
+    ) {
+      this.setState({
+        dataWeather: {
+          temp: "--",
+          wind: "--",
+          humidity: "--",
+          pressure: "--",
+          sunrise: "--",
+          sunset: "--",
+          icon: "--",
+          country: ""
+        },
+        city: "--"
+      });
       const highchartAPI = `https://api.openweathermap.org/data/2.5/forecast?q=${
         this.state.value
       }&appid=${APIkey}&units=metric`;
@@ -99,10 +108,8 @@ class App extends Component {
         .then(resp => {
           if (resp.ok) {
             return resp.json();
-          } /*else {
-            this.setState({ dataWeather: [], dataWeatherIsLoad: false });
-          }*/
-          throw Error("Brak miasta w bazie");
+          }
+          throw Error("cannot read data");
         })
         .then(data =>
           this.setState({
@@ -116,18 +123,18 @@ class App extends Component {
               icon: data.weather[0].id,
               country: data.sys.country
             },
+            city: data.name,
             dataWeatherIsLoad: true
           })
         )
         .catch(err => console.log(err));
+      //highchart
       fetch(highchartAPI)
         .then(resp => {
           if (resp.ok) {
             return resp.json();
-          } /*else {
-            this.setState({ dataHighchart: [], dataHighchartIsLoad: false });
-          }*/
-          throw Error("Brak miasta w bazie");
+          }
+          throw Error("cannot read data");
         })
         .then(data =>
           this.setState({
@@ -148,20 +155,20 @@ class App extends Component {
     return (
       <>
         <div className="App">
-          <input
-            type="text"
-            value={this.state.value}
-            onChange={this.handleCahngeInput}
-          />
-          <br />
+          <div className="input">
+            <input
+              type="text"
+              placeholder="find your city!"
+              value={this.state.value}
+              onChange={this.handleCahngeInput}
+            />
+            <i className="fas fa-search" />
+          </div>
           {this.state.dataWeatherIsLoad ? (
-            <Weather data={this.state.dataWeather} city={this.state.value} />
+            <Weather data={this.state.dataWeather} city={this.state.city} />
           ) : null}
           {this.state.dataHighchartIsLoad ? (
-            <Highchart
-              data={this.state.dataHighchart}
-              city={this.state.value}
-            />
+            <Highchart data={this.state.dataHighchart} city={this.state.city} />
           ) : null}
         </div>
       </>

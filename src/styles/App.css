@@ -1,0 +1,38 @@
+.App {
+  max-width: 1200px;
+  margin: 0 auto;
+  text-align: center;
+  font-family: 'Dosis', sans-serif;
+}
+
+.App .input {
+  position: fixed;
+  top: 0;
+  max-width: 1200px;
+  width: 100%;
+  padding: 20px;
+  background-color: rgb(124, 181, 236);
+}
+
+::placeholder {
+  color: #888;
+}
+
+.App .input i {
+  color: #888;
+  transform: translate(-150%, 0);
+}
+
+.App .input input {
+  cursor: pointer;
+  color: #888;
+  width: 50%;
+  padding: 5px 10px;
+  outline: none;
+  box-sizing: content-box;
+  border-color: transparent;
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+  border-bottom-left-radius: 20px;
+  border-bottom-right-radius: 20px;
+}

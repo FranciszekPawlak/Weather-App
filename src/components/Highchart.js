@@ -1,6 +1,7 @@
 import React from "react";
 import Highcharts from "highcharts/highstock";
 import HighchartsReact from "highcharts-react-official";
+import "../styles/Highchart.css";
 const days = [
   "Sunday",
   "Monday",
@@ -11,6 +12,7 @@ const days = [
   "Saturday"
 ];
 const Highchart = props => {
+  console.log(props.data);
   const day = new Date().getDay();
   const fullDate = new Date().toLocaleDateString();
   let counter = day;
@@ -38,8 +40,7 @@ const Highchart = props => {
   });
   const HighchartOptions = {
     title: {
-      text: "highchart generate by www.highcharts.com"
-      //text: `Five-day weather forecast for ${props.city}`
+      text: `Five-day weather forecast for ${props.city}`
     },
 
     subtitle: {
@@ -62,8 +63,9 @@ const Highchart = props => {
   };
 
   return (
-    <div>
+    <div className="highchart">
       <HighchartsReact highcharts={Highcharts} options={HighchartOptions} />
+      <p>highchart generate by www.highcharts.com</p>
     </div>
   );
 };
