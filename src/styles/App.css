@@ -3,6 +3,9 @@
   margin: 0 auto;
   text-align: center;
   font-family: 'Dosis', sans-serif;
+  opacity: 0;
+  transition: 2s;
+  opacity: 1;
 }
 
 .App .input {
@@ -11,6 +14,7 @@
   max-width: 1200px;
   width: 100%;
   padding: 20px;
+  z-index: 999;
   background-color: rgb(124, 181, 236);
 }
 
@@ -24,7 +28,6 @@
 }
 
 .App .input input {
-  cursor: pointer;
   color: #888;
   width: 50%;
   padding: 5px 10px;
@@ -35,4 +38,42 @@
   border-top-right-radius: 20px;
   border-bottom-left-radius: 20px;
   border-bottom-right-radius: 20px;
+}
+
+.App .input input:hover {
+  color: rgb(124, 181, 236);
+}
+
+.App .input input:hover::placeholder {
+  color: rgb(124, 181, 236);
+}
+
+.App .input:hover i {
+  color: rgb(124, 181, 236);
+}
+
+.App .input :hover::placeholder {
+  color: rgb(124, 181, 236);
+}
+
+.App footer p {
+  max-width: 1200px;
+  position: fixed;
+  width: 100%;
+  bottom: 0;
+  text-transform: uppercase;
+  padding: 20px;
+  color: white;
+  background-color: rgb(124, 181, 236);
+}
+
+
+@media (max-width: 576px) {
+  .App .input {
+    padding: 10px;
+  }
+
+  .App footer p {
+    padding: 10px;
+  }
 }

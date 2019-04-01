@@ -8,6 +8,7 @@ class App extends Component {
   state = {
     value: "",
     city: "",
+    opacity: 0,
     dataHighchart: {
       hoursHighchart: [],
       tempHighchart: []
@@ -150,7 +151,6 @@ class App extends Component {
         .catch(err => console.log(err));
     }
   }
-
   render() {
     return (
       <>
@@ -170,6 +170,9 @@ class App extends Component {
           {this.state.dataHighchartIsLoad ? (
             <Highchart data={this.state.dataHighchart} city={this.state.city} />
           ) : null}
+          <footer>
+            <p>highchart generate by www.highcharts.com</p>
+          </footer>
         </div>
       </>
     );

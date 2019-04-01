@@ -12,9 +12,8 @@ const days = [
   "Saturday"
 ];
 const Highchart = props => {
-  console.log(props.data);
   const day = new Date().getDay();
-  const fullDate = new Date().toLocaleDateString();
+  const fullDate = new Date().toLocaleString();
   let counter = day;
 
   const hoursWithDays = [...props.data.hoursHighchart[0]].map(item => {
@@ -40,11 +39,18 @@ const Highchart = props => {
   });
   const HighchartOptions = {
     title: {
-      text: `Five-day weather forecast for ${props.city}`
+      text: `Five-day weather forecast for ${props.city}`,
+      style: {
+        fontSize: 28,
+        fontWeight: "bold"
+      }
     },
 
     subtitle: {
-      text: `from ${days[day - 1]}  ${fullDate}`
+      text: `every three hours from ${fullDate}`,
+      style: {
+        fontSize: 22
+      }
     },
     xAxis: {
       categories: hoursWithDays
@@ -59,13 +65,19 @@ const Highchart = props => {
         name: "temperature",
         data: props.data.tempHighchart[0]
       }
-    ]
+    ],
+    chart: {
+      style: {
+        fontFamily: "Dosis",
+        fontSize: 18,
+        color: "black"
+      }
+    }
   };
 
   return (
     <div className="highchart">
       <HighchartsReact highcharts={Highcharts} options={HighchartOptions} />
-      <p>highchart generate by www.highcharts.com</p>
     </div>
   );
 };
