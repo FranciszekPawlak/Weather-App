@@ -2,6 +2,7 @@ import React from "react";
 import Highcharts from "highcharts/highstock";
 import HighchartsReact from "highcharts-react-official";
 import "../styles/Highchart.css";
+
 const days = [
   "Sunday",
   "Monday",
@@ -9,14 +10,14 @@ const days = [
   "Wednesday",
   "Thursday",
   "Friday",
-  "Saturday"
+  "Saturday",
 ];
-const Highchart = props => {
-  const day = new Date().getDay();
-  const fullDate = new Date().toLocaleString();
-  let counter = day;
 
-  const hoursWithDays = [...props.data.hoursHighchart[0]].map(item => {
+const Highchart = ({ city, data: { hoursHighchart, tempHighchart } }) => {
+  const fullDate = new Date().toLocaleString();
+  let counter = new Date().getDay();
+
+  const hoursWithDays = [...hoursHighchart[0]].map((item) => {
     if (item === "00:00") {
       if (counter < 3) {
         item = days[counter + 1].substring(0, 3) + " " + item;
@@ -37,42 +38,43 @@ const Highchart = props => {
     }
     return item;
   });
+
   const HighchartOptions = {
     title: {
-      text: `Five-day weather forecast for ${props.city}`,
+      text: `Five-day weather forecast for ${city}`,
       style: {
         fontSize: 28,
-        fontWeight: "bold"
-      }
+        fontWeight: "bold",
+      },
     },
 
     subtitle: {
       text: `every three hours from ${fullDate}`,
       style: {
-        fontSize: 22
-      }
+        fontSize: 22,
+      },
     },
     xAxis: {
-      categories: hoursWithDays
+      categories: hoursWithDays,
     },
     yAxis: {
       title: {
-        text: "Temperature (°C)"
-      }
+        text: "Temperature (°C)",
+      },
     },
     series: [
       {
         name: "temperature",
-        data: props.data.tempHighchart[0]
-      }
+        data: tempHighchart[0],
+      },
     ],
     chart: {
       style: {
         fontFamily: "Dosis",
         fontSize: 18,
-        color: "black"
-      }
-    }
+        color: "black",
+      },
+    },
   };
 
   return (

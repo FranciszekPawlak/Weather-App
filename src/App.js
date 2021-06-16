@@ -1,8 +1,9 @@
 import React, { Component } from "react";
-import "./styles/App.css";
 import Highchart from "./components/Highchart";
 import Weather from "./components/Weather";
-const APIkey = "1697193f8750f5ec8d1046c2118876cf";
+import { highchartApiUrl, weatherApiUrl } from "./helpers/generateApiUrl";
+import { fetcher } from "./helpers/fetcher";
+import "./styles/App.css";
 
 class App extends Component {
   state = {
@@ -11,7 +12,7 @@ class App extends Component {
     opacity: 0,
     dataHighchart: {
       hoursHighchart: [],
-      tempHighchart: []
+      tempHighchart: [],
     },
     dataWeather: {
       temp: "",
@@ -21,71 +22,20 @@ class App extends Component {
       sunrise: "",
       sunset: "",
       icon: "",
-      country: ""
+      country: "",
     },
 
     dataHighchartIsLoad: false,
-    dataWeatherIsLoad: false
+    dataWeatherIsLoad: false,
   };
 
-  handleCahngeInput = e => this.setState({ value: e.target.value });
   componentDidMount() {
-    const highchartAPI = `https://api.openweathermap.org/data/2.5/forecast?q=warsaw&appid=${APIkey}&units=metric`;
-    const weatherAPI = `https://api.openweathermap.org/data/2.5/weather?q=warsaw&appid=${APIkey}&units=metric`;
-
-    //pogoda--------------------------------------
-    fetch(weatherAPI)
-      .then(resp => {
-        if (resp.ok) {
-          return resp.json();
-        }
-        throw Error("Brak miasta w bazie");
-      })
-      .then(data => {
-        this.setState({
-          dataWeather: {
-            temp: data.main.temp,
-            wind: data.wind.speed,
-            humidity: data.main.humidity,
-            pressure: data.main.pressure,
-            sunrise: new Date(data.sys.sunrise * 1000).toLocaleTimeString(),
-            sunset: new Date(data.sys.sunset * 1000).toLocaleTimeString(),
-            icon: data.weather[0].id,
-            country: data.sys.country
-          },
-          city: data.name,
-          dataWeatherIsLoad: true
-        });
-      })
-      .catch(err => console.log(err));
-    //wykres-----------------------
-    fetch(highchartAPI)
-      .then(resp => {
-        if (resp.ok) {
-          return resp.json();
-        }
-        throw Error("cannot read data");
-      })
-      .then(data =>
-        this.setState({
-          dataHighchart: {
-            hoursHighchart: [
-              data.list.map((date, index) => date.dt_txt.slice(11, 16))
-            ],
-            tempHighchart: [data.list.map(item => item.main.temp)]
-          },
-          dataHighchartIsLoad: true
-        })
-      )
-      .catch(err => console.log(err));
+    this.setInitialWeatherData();
+    this.setInitialChartData();
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (this.state.value.length === 0) return;
-
-    if (
-      prevState.value !== this.state.value /* && this.state.value.length > 2*/
-    ) {
+    if (this.state.value.length > 1 && prevState.value !== this.state.value) {
       this.setState({
         dataWeather: {
           temp: "--",
@@ -95,63 +45,68 @@ class App extends Component {
           sunrise: "--",
           sunset: "--",
           icon: "--",
-          country: ""
+          country: "",
         },
-        city: "--"
+        city: "--",
       });
-      const highchartAPI = `https://api.openweathermap.org/data/2.5/forecast?q=${
-        this.state.value
-      }&appid=${APIkey}&units=metric`;
-      const weatherAPI = `https://api.openweathermap.org/data/2.5/weather?q=${
-        this.state.value
-      }&appid=${APIkey}&units=metric`;
-      fetch(weatherAPI)
-        .then(resp => {
-          if (resp.ok) {
-            return resp.json();
-          }
-          throw Error("cannot read data");
-        })
-        .then(data =>
-          this.setState({
-            dataWeather: {
-              temp: data.main.temp,
-              wind: data.wind.speed,
-              humidity: data.main.humidity,
-              pressure: data.main.pressure,
-              sunrise: new Date(data.sys.sunrise * 1000).toLocaleTimeString(),
-              sunset: new Date(data.sys.sunset * 1000).toLocaleTimeString(),
-              icon: data.weather[0].id,
-              country: data.sys.country
-            },
-            city: data.name,
-            dataWeatherIsLoad: true
-          })
-        )
-        .catch(err => console.log(err));
-      //highchart
-      fetch(highchartAPI)
-        .then(resp => {
-          if (resp.ok) {
-            return resp.json();
-          }
-          throw Error("cannot read data");
-        })
-        .then(data =>
-          this.setState({
-            dataHighchart: {
-              hoursHighchart: [
-                data.list.map((date, index) => date.dt_txt.slice(11, 16))
-              ],
-              tempHighchart: [data.list.map(item => item.main.temp)]
-            },
-            dataHighchartIsLoad: true
-          })
-        )
-        .catch(err => console.log(err));
+
+      this.setInitialWeatherData(this.state.value);
+      this.setInitialChartData(this.state.value);
     }
   }
+
+  setInitialWeatherData = async (city) => {
+    const weatherData = await fetcher(weatherApiUrl(city));
+    if (weatherData) {
+      const {
+        main: { temp, humidity, pressure },
+        wind: { speed },
+        weather,
+        sys: { country, sunrise, sunset },
+        name,
+      } = weatherData;
+      this.setState({
+        dataWeather: {
+          temp: temp,
+          wind: speed,
+          humidity: humidity,
+          pressure: pressure,
+          sunrise: new Date(sunrise * 1000).toLocaleTimeString(),
+          sunset: new Date(sunset * 1000).toLocaleTimeString(),
+          icon: weather[0].id,
+          country: country,
+        },
+        city: name,
+        dataWeatherIsLoad: true,
+      });
+    }
+  };
+
+  setInitialChartData = async (city) => {
+    const chartData = await fetcher(highchartApiUrl(city));
+    if (chartData) {
+      const { list } = chartData;
+      this.setState({
+        dataHighchart: {
+          hoursHighchart: [list.map((date) => date.dt_txt.slice(11, 16))],
+          tempHighchart: [list.map((item) => item.main.temp)],
+        },
+        dataHighchartIsLoad: true,
+      });
+    }
+  };
+
+  handleCahngeInput = (e) => this.setState({ value: e.target.value });
+
   render() {
+    const {
+      dataWeatherIsLoad,
+      dataHighchartIsLoad,
+      dataHighchart,
+      city,
+      dataWeather,
+      value,
+    } = this.state;
     return (
       <>
         <div className="App">
@@ -159,17 +114,17 @@ class App extends Component {
             <input
               type="text"
               placeholder="find your city!"
-              value={this.state.value}
+              value={value}
               onChange={this.handleCahngeInput}
             />
             <i className="fas fa-search" />
           </div>
-          {this.state.dataWeatherIsLoad ? (
-            <Weather data={this.state.dataWeather} city={this.state.city} />
-          ) : null}
-          {this.state.dataHighchartIsLoad ? (
-            <Highchart data={this.state.dataHighchart} city={this.state.city} />
-          ) : null}
+          {dataWeatherIsLoad && (
+            <Weather data={dataWeather} city={this.state.city} />
+          )}
+          {dataHighchartIsLoad && (
+            <Highchart data={dataHighchart} city={city} />
+          )}
           <footer>
             <p>highchart generate by www.highcharts.com</p>
           </footer>
